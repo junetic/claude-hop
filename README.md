@@ -37,7 +37,7 @@ Requires [Claude Code](https://claude.ai/code).
 | Command           | Description                        |
 | ----------------- | ---------------------------------- |
 | `chop`            | Pick a session across all projects |
-| `chop r`          | Resume most recent session         |
+| `chop r`          | Resume most recent session from any project or directory        |
 | `chop <name>`     | Jump to a pinned project           |
 | `chop pin <name>` | Save current project               |
 | `chop ls`         | List pins                          |

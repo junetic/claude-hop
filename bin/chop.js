@@ -66,27 +66,35 @@ function loadSessions() {
       const filePath = path.join(projPath, file);
       const mtime = statSync(filePath).mtimeMs;
 
-      let title = '';
-      let fallback = '';
+      let lastUserMsg = '';
       try {
         const lines = readFileSync(filePath, 'utf8').split('\n');
         for (const line of lines) {
           if (!line) continue;
           try {
             const r = JSON.parse(line);
-            if (r.type === 'ai-title' && r.aiTitle) { title = r.aiTitle; break; }
-            if (!fallback && r.type === 'user') {
+            if (r.type === 'user') {
               const content = r.message?.content;
+              if (Array.isArray(content)) {
+                // skip if contains any tool results or images — not human-typed text
+                if (content.some(b => b.type === 'tool_result' || b.type === 'image')) continue;
+              }
               const text = typeof content === 'string' ? content :
-                (Array.isArray(content) ? content.find(b => b.type === 'text')?.text : '') || '';
+                (Array.isArray(content) ? (content.find(b => b.type === 'text')?.text || '') : '') || '';
               const cleaned = text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-              if (cleaned) fallback = cleaned.slice(0, 120);
+              if (!cleaned
+                || cleaned.startsWith('[Image:')
+                || cleaned.startsWith('[Request interrupted')
+                || /^[a-z0-9]+ toolu_/.test(cleaned)
+                || /^https?:\/\/\S+$/.test(cleaned)
+              ) continue;
+              lastUserMsg = cleaned;
             }
           } catch {}
         }
       } catch {}
 
-      const rawT = (title || fallback).replace(/\s+/g, ' ').trim();
+      const rawT = lastUserMsg.slice(0, 120);
       sessions.push({ mtime, sessionId, projDir, title: rawT });
     }
   }
@@ -123,7 +131,7 @@ function resumeAllProjects() {
       : days < 7 ? `${days}d ago`
       : `${Math.floor(days/7)}w ago`;
     const projRaw = displayPath(s.projDir).slice(0, 22);
-    const num = `${c.gray}${String(i+1).padStart(pad)}${c.reset}`;
+    const num = `${c.white}${String(i+1).padStart(pad)}${c.reset}`;
     const date = `\x1b[38;5;240m${dt}${c.reset}`;
     const projLabel = `${projRaw} (${dt})`;
     const projStr = `\x1b[38;5;248m${projRaw}${c.reset}${c.dim} (${dt})${c.reset}${' '.repeat(Math.max(0, 34 - projLabel.length))}`;

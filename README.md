@@ -27,7 +27,7 @@ resume› 2
 ## Install
 
 ```bash
-npm install -g claude-hop
+npm install -g claude-hop-cli
 ```
 
 Requires [Claude Code](https://claude.ai/code).

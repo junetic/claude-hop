@@ -1,5 +1,5 @@
 {
-  "name": "claude-hop",
+  "name": "claude-hop-cli",
   "version": "0.1.0",
   "description": "Muscle memory for Claude Code sessions",
   "bin": {

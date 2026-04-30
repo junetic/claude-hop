@@ -1,9 +1,9 @@
 ```
 (\ /)
-(^.^)  claude hop
+(^.^)  claude hop | chop
 ```
 
-# chop — session hopping for Claude Code
+# Claude Hop — session hopping for Claude Code
 
 Jump between Claude Code sessions across all projects. Instantly.
 

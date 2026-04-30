@@ -7,6 +7,8 @@
 
 Jump between Claude Code sessions across all projects. Instantly.
 
+Built for when you have multiple active Claude sessions across projects and need to switch without losing your place.
+
 Unlike `claude --resume`, this works across all projects from anywhere.
 
 Think of it like tmux for Claude sessions.

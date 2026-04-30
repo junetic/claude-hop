@@ -11,6 +11,8 @@ Unlike `claude --resume`, this works across all projects from anywhere.
 
 Think of it like tmux for Claude sessions.
 
+https://github.com/user-attachments/assets/a16d8252-65ba-4879-a9aa-c08a9884b7be
+
 ```
 $ chop
 

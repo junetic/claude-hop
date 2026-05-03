@@ -81,7 +81,7 @@ function loadSessions() {
               }
               const text = typeof content === 'string' ? content :
                 (Array.isArray(content) ? (content.find(b => b.type === 'text')?.text || '') : '') || '';
-              const cleaned = text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+              const cleaned = text.replace(/<[^>]+>/g, '').replace(/[\x00-\x1f\x7f]/g, '').replace(/\s+/g, ' ').trim();
               if (!cleaned
                 || cleaned.startsWith('[Image:')
                 || cleaned.startsWith('[Request interrupted')
@@ -110,6 +110,7 @@ function displayPath(projDir) {
 }
 
 function formatRow(s, i, pad, selected) {
+  const cols = process.stdout.columns || 80;
   const diffMs = Date.now() - s.mtime;
   const mins = Math.floor(diffMs / 60000);
   const hrs = Math.floor(mins / 60);
@@ -122,7 +123,10 @@ function formatRow(s, i, pad, selected) {
   const projRaw = displayPath(s.projDir).slice(0, 22);
   const projLabel = `${projRaw} (${dt})`;
   const pad2 = ' '.repeat(Math.max(0, 34 - projLabel.length));
-  const t = s.title ? s.title.slice(0, 40) + (s.title.length > 40 ? '…' : '') : '';
+  // visible: 1(sp) + 2(›, treat as 2-wide) + 1(sp) + pad(num) + 2(sp) + 34(proj) + 2(sp) = 42+pad before title
+  const titleMax = Math.max(0, cols - (42 + pad));
+  // slice to titleMax-1 before adding '…' so total stays within titleMax
+  const t = s.title.length > titleMax ? s.title.slice(0, titleMax - 1) + '…' : s.title;
   const cursor = selected ? `${c.orange}›${c.reset}` : ' ';
   const num = selected
     ? `${c.orange}${c.bold}${String(i+1).padStart(pad)}${c.reset}`
@@ -149,8 +153,8 @@ function resumeAllProjects() {
 
   const EXTRA = 2; // blank line + hint line
 
-  function render(firstRender) {
-    if (!firstRender) process.stdout.write(`\x1b[${sessions.length + EXTRA}A`);
+  function render(first) {
+    if (!first) process.stdout.write(`\x1b[${sessions.length + EXTRA}A`);
     sessions.forEach((s, i) => process.stdout.write(formatRow(s, i, pad, i === selected) + '\n'));
     process.stdout.write(`\r\x1b[2K\n\r\x1b[2K  ${c.dim}enter number or arrow keys to select, q or esc to exit${c.reset}\n`);
   }
